@@ -1,0 +1,24 @@
+hosts:
+  core_host:
+    runner: run.py
+    config_file: core_host_config.py
+    processes:
+      core_process1:
+        components:
+          core:
+            config:
+              core_facade_port: 10000
+              core_facade_server_route: route1
+            type: core
+      laboratory1:
+        components:
+          experiment1:
+            class: experiments.dummy.DummyExperiment
+            config:
+              dummy_verbose: true
+            type: experiment
+          laboratory1:
+            config_file: lab1_config.py
+            protocols:
+              port: 10001
+            type: laboratory

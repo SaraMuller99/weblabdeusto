@@ -56,6 +56,7 @@ Now is we execute the command before them will show:
 
     $ mkvirtualenv --version 
     virtualenv 20.15.1 from /home/sara/.local/lib/python2.7/site-packages/virtualenv/__init__.pyc
+
 ### Installing WebLab-Deusto 
 
 Now we have to create a virtualenv, this is where we are going to work from now on: 
@@ -92,6 +93,8 @@ From now on every time we use a new terminal, we will have to specify the virtua
 
 ## Further Steps
 
+### Installing external systems
+
 Now we should install some external components. According to the official WebLab-Documentation there's two different ways to do the backend scheduling: MySQL and Redis. Due to the information given followed by the fact that finding a MySQL functional library have been almost inpossible, Redis is the backend for scheduling chosen. To install them we should:
 
     $ sudo apt-get install apache2  redis-server 
@@ -109,6 +112,8 @@ We have to take into account that redis performs all the operations in memory bu
     #save 900 1 
     #save 300 10 
     #save 60 10000 
+
+#### Installing native libraries
 
 Now we should install some native libraries that makes the system works more efficiently:
 
@@ -128,3 +133,52 @@ Once installed is possible to install more optimized python libraries, but befor
     $ cd weblab/server/src
     $ pip install -r requirements_suggested.txt
 
+### Scheduling and Database
+
+As we said before, Redis will be use as the database backends for scheduling
+
+    $ weblab-admin create sample --coordination-engine=redis
+
+If we want a more complex configuration we can run the previous command adding more parameters:
+
+    $ weblab-admin create sample --coordination-engine=redis \
+    --coordination-redis-db=4  --coordination-redis-passwd=mypassword \
+    --coordination-redis-port=6379
+
+Also, if we want to change an existing deployment, we may check the variables explained at Configuration variables, which are located at a file called machine_config.py in the core_machine directory.
+
+Also, as MySQL is not supported anymore and we are going to deploy the server in a Raspberry pi, SQLite will be our database engine
+    
+        $ weblab-admin create sample --db-engine=mysql
+
+Additionally, we may customize the deployment with the following arguments:
+
+    $ weblab-admin create sample --db-engine=mysql  \ 
+    --db-name=MyWebLab     --db-host=localhost    \
+    --db-port=3306         --db-user=weblab       \
+    --db-passwd=mypassword
+
+Running these command separately isn't our objetive, because we want to deploy the proyect configurating booth at the same time, so we should do:
+
+    $ weblab-admin create sample --coordination-engine=redis --db-engine=sqlite
+
+### Secure the deployment
+*Entiendo que esto hasta que no tengas el host definitivo y tal no tiene sentido*
+#### Secure the communications
+#### Close access to local services
+#### Upgrade your software frequently
+
+### Deployments 
+
+WebLab-Deusto can be run as a script, but we might want to deploy it as a service.In supervisor we can add any type of program and they will run as services. We also have a tool to control which services are started, or restart them when required (e.g., when upgrading or modifying the .py or .yml files).
+
+#### 1. Install Supervisor
+To install the supervisor we just hace to run 
+
+    $ sudo apt-get supervisor
+
+NO TUVISTE QUE CAMBIAR NADA DE LO QUE PONE EN LA WIKI ASÍ QUE YA LA VAS ESCRIBIENDO
+#### 2. Prepare Weblab for being used as a service
+#### 3. Create the configuration to supervisor
+#### 4. Add the configuration to supervisor
+#### 5. Verificate supervisor functioning

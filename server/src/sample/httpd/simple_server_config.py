@@ -1,0 +1,16 @@
+PATHS = [ 
+    (u'$', u'redirect:/weblab/'),
+    (u'/$', u'redirect:/weblab/'),
+    (u'/weblab/client$', u'redirect:/weblab/client/index.html'),
+    (u'/weblab/client', u'file:/home/sara/.virtualenvs/weblab/lib/python2.7/site-packages/weblabdeusto-5.0-py2.7.egg/weblab/core/static/oldclient'),
+    (u'/weblab/admin/static', u'file:/home/sara/.virtualenvs/weblab/lib/python2.7/site-packages/Flask_Admin-1.5.3-py2.7.egg/flask_admin/static'),
+    (u'/weblab/instructor/static', u'file:/home/sara/.virtualenvs/weblab/lib/python2.7/site-packages/weblabdeusto-5.0-py2.7.egg/weblab/admin/web/static'),
+    (u'/weblab/profile/static', u'file:/home/sara/.virtualenvs/weblab/lib/python2.7/site-packages/weblabdeusto-5.0-py2.7.egg/weblab/admin/web/static'),
+    (u'/weblab/web/static', u'file:/home/sara/.virtualenvs/weblab/lib/python2.7/site-packages/weblabdeusto-5.0-py2.7.egg/weblab/core/static'),
+    (u'/weblab/static', u'file:/home/sara/.virtualenvs/weblab/lib/python2.7/site-packages/weblabdeusto-5.0-py2.7.egg/weblab/core/static'),
+    (u'/weblab/gwt/weblabclientlab', u'file:war/weblabclientlab'),
+    (u'/weblab/web/pub', u'file:/home/sara/weblab/server/src/sample/pub'),
+    (u'/weblab/', u'proxy-sessions:weblabsessionid:route1=http://localhost:10000/weblab/,'),
+    (u'/weblab', u'redirect:/weblab/'),
+    (u'', u'redirect:/weblab/'),
+]
