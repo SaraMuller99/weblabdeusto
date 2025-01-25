@@ -89,3 +89,42 @@ Once the process is over, we test the installation by running:
 From now on every time we use a new terminal, we will have to specify the virtualenv where we want to work, in this case 
 
     $ workon weblab  
+
+## Further Steps
+
+Now we should install some external components. According to the official WebLab-Documentation there's two different ways to do the backend scheduling: MySQL and Redis. Due to the information given followed by the fact that finding a MySQL functional library have been almost inpossible, Redis is the backend for scheduling chosen. To install them we should:
+
+    $ sudo apt-get install apache2  redis-server 
+
+According to our objetives PHP is not necessary because we aren't going to implement external systems bases in PHP as Moodle, so `mpm_worker` will be use. If PHP where necessary, it can be installed in the future. This package is not available anymore so is necessary to do it using the new modular way: 
+
+    $ sudo apt-get install apache2 
+    $ sudo a2dismod mpm_prefork 
+    $ sudo a2dismod mpm_event 
+    $ sudo a2enmod mpm_worker 
+    $ sudo systemctl restart apache2  
+
+We have to take into account that redis performs all the operations in memory but from time to time it stores everything in disk, adding latency. It is recommended to avoid this. In the `/etc/redis/redis`.conf file, comment the following lines: 
+
+    #save 900 1 
+    #save 300 10 
+    #save 60 10000 
+
+Now we should install some native libraries that makes the system works more efficiently:
+
+    # Python 
+    $ sudo apt-get install build-essential python-dev 
+    # LDAP 
+    $ sudo apt-get install libldap2-dev 
+    # SASL, SSL for supporting LDAP 
+    $ sudo apt-get install libsasl2-dev libsasl2-dev libssl-dev 
+    # XML libraries for validating the configuration files 
+    $ sudo apt-get install libxml2-dev libxslt1-dev 
+    # Avoid problems with freetype: 
+    $ sudo ln -s /usr/include/freetype2 /usr/include/freetyp
+
+Once installed is possible to install more optimized python libraries, but before this we're going to modify the `requirements_suggested.txt` by commenting the lines related with MySQL and Numpy, then we do:
+
+    $ cd weblab/server/src
+    $ pip install -r requirements_suggested.txt
+
