@@ -13,7 +13,6 @@ We will download it from github using git, which is the recommended way accordin
 First of all we will install a few packages necessaries to run weblab
 
 #### 1. Install Python 2.7: 
-
 Python 2.7 must be installed, the OS installed in the Raspberry Pi 400 is Raspbian Bullseye which is pretty new, so the default python is 3.8 
  
 
@@ -22,7 +21,6 @@ Python 2.7 must be installed, the OS installed in the Raspberry Pi 400 is Raspbi
     $ sudo apt-get install python-pip in Ubuntu/Debian 
 
 #### 3. Install virtualenv and virtualenvwrapper. 
-
 To be sure that you are using Python2.7 yo can do 
 
     $ python2.7 -m pip install virtualenv virtualenvwrapper 
@@ -177,8 +175,68 @@ To install the supervisor we just hace to run
 
     $ sudo apt-get supervisor
 
-NO TUVISTE QUE CAMBIAR NADA DE LO QUE PONE EN LA WIKI ASÍ QUE YA LA VAS ESCRIBIENDO
+Once installed we can start the supervisor
+
+    $ sudo service supervisor start
+
 #### 2. Prepare Weblab for being used as a service
+Now, due to we installed Weblab using a virtualenwrapper and we called the virtual enviroment weblab the virtualenv is located in `/home/sara/.virtualenvs/weblab` and the activation script will be in  `/home/sara/.virtualenvs/weblab/bin/activate`
+Also, we will create a `deployments` directory and crreate a new deployment called `example` inside there:
+
+    $ cd /home/sara/deployments
+    $ weblab-admin create example --http-server-port=12345
+
+At this point we create a Bash script that will work as a wrapper to execute weblab.admin inside the virtualenv, this have to be located in a know place, so we will create it inside `deployments`:
+
+    #!/bin/bash
+    _term() {
+    kill -TERM "$child" 2>/dev/null
+    }
+
+    # When SIGTERM is sent, send it to weblab-admin
+    trap _term SIGTERM
+
+    source /home/sara/.virtualenvs/weblab/bin/activate
+    weblab-admin $@ &
+
+    child=$!
+    wait "$child"
+
+Execution privileges must be granted:
+
+    $ chmod +x /home/sara/deployments/weblab-wrapper.sh
+
+With this done, now we can call it from anywhere and the virtualenv will work.
+
 #### 3. Create the configuration to supervisor
+Now we have to create a configuration file. This file will configures Supervisor to run the `weblab-wrapper.sh` script under the main user, log the standard output and error output to specific log fils, propertly handle termination od the process and its child process and ensure the `example` service can be started, stopped and monitored using Suervisor.
+We will locate `example.conf` inside `deployments`directory:
+    
+    [program:example]
+    command=/home/tom/deployments/weblab-wrapper.sh start example
+    directory=/home/tom/deployments/
+    user=tom
+    stdout_logfile=/home/tom/deployments/example/logs/stdout.log
+    stderr_logfile=/home/tom/deployments/example/logs/stderr.log
+    killasgroup=true
+
 #### 4. Add the configuration to supervisor
+We have to add the conficuration file created before to the supervisor, so we will do:
+    
+    $ sudo cp example.conf /etc/supervisor/conf.d/
+    $ sudo supervisorctl update
+    example: added process group
+And we can check that our WebLab-Deusto instance is running. 
+
+    $ sudo supervisorctl status
+    example                          RUNNING   pid 12428, uptime 0:00:04
+
 #### 5. Verificate supervisor functioning
+Once configured, it becomes easier to start the cycle of the deployment. For example:
+
+    $ sudo supervisorctl start example
+    example: started
+    $ sudo supervisorctl status example
+    example                          RUNNING   pid 19320, uptime 0:00:18
+    $ sudo supervisorctl stop example
+    example: stopped
